@@ -1,0 +1,134 @@
+body{
+    margin: 0;
+    background-color: #BDD0DF;
+    font-family: 'Poppins';
+}
+
+
+header{
+    width: 100vw;
+    height: 70px;
+    background-color: #FFFFFF;
+}
+
+header img {
+    margin-left: 50px;
+    width: 175px;
+}
+
+header a{
+    margin-right: 50px;
+    padding: 20px;
+    align-content: center;
+    right: 0;
+    position: absolute;
+    text-decoration: none;
+    color: #022D58;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.sidebar{
+    width: 200px;
+    background-color: #FFFFFF;
+    height: 100vh;
+    float: left;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar a{
+    padding: 10px;
+    display: block;
+    text-decoration: none;
+    color: #000000;
+    font-size: 16px;
+}
+
+.sidebar .dashboard{
+    color: #000000;
+    transition: .3s;
+}
+
+.sidebar .dashboard:hover{
+    color: #FFFFFF;
+    background-color: #022D58;
+}
+
+.sidebar .tenants{
+    color: #FFFFFF;
+    background-color: #022D58;
+    transition: .3s;
+}
+
+.sidebar .tenants:hover{
+    color: #FFFFFF;
+    background-color: #022D58;
+}
+
+.sidebar .changepassword{
+    font-size: 14px;
+    margin-top: auto;
+}
+
+.cotent{
+    float: right;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.vacantrooms{
+    background-color: #022D58;
+    width: 250px;
+    height: 100px;
+    float: left;
+    margin: 20px;
+    border-radius: 25px;
+    /*remove incase*/
+    position: absolute;
+    margin-left: 250px;
+}
+
+.vacantrooms .text{
+    float: right;
+    padding: 10px;
+    margin-right: 10px;
+    margin-top: 5px;
+    text-align: center;
+    color: #FFFFFF;
+}   
+
+.vacantrooms img{
+    float: left;
+    padding: 10px;
+}
+
+.totaltenants{
+    background-color: #022D58;
+    width: 250px;
+    height: 100px;
+    float: left;
+    margin: 20px;
+    border-radius: 25px;
+    /*remove incase*/
+    position: absolute;
+    margin-left: 550px;
+}
+
+.totaltenants .text{
+    float: right;
+    padding: 10px;
+    margin-right: 10px;
+    margin-top: 5px;
+    text-align: center;
+    color: #FFFFFF;
+}   
+
+.totaltenants img{
+    float: left;
+    padding: 10px;
+}
+
+
+

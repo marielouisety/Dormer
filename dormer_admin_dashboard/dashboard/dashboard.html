@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dormer</title>
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+    <link rel="stylesheet" href="dashboardstyles.css">
+    <script src="index.js"></script>
+</head>
+<body>
+    <header>
+        <img src="../../images/Dormer logo.png" alt="dormerlogo.png">
+        <div class="user-info">
+            <?php
+            if (isset($_SESSION['fName']) && isset($_SESSION['lName']) && isset($_SESSION['role'])) {
+                echo "<div class='userdetails'>". $_SESSION['fName'] . " " . $_SESSION['lName'] . " - " . ucfirst($_SESSION['role']) ."</div>";
+            } else {
+                echo "<div class='userdetails'>Guest</div>";
+            }
+            ?>
+        </div>
+    </header>
+
+    <div class="main">
+        <div class="sidebar">
+            <a href="../../dormer_admin_dashboard/dashboard/dashboard.php" class="dashboard">Dashboard</a>
+            <a href="../../dormer_admin_dashboard/tenants/tenants.php" class="tenants">Tenants</a>
+            <a href="../../dormer_admin_dashboard/changepassword/changepass.php" class="changepassword">Change Password</a>
+            <a href="../../login/loginpage.php" class="signout">Sign Out</a>
+        </div>
+        <div class="content">
+            <div class="vacantrooms">
+                <div class="text">
+                    <p>Vacant Rooms</p>
+                    <?php
+                            include 'db_connect.php';
+                            $sql = "SELECT COUNT(room_number) as roomcount FROM rooms;";
+    
+                            $result = $conn->query($sql);
+                            
+                            $row = $result->fetch_assoc();
+                            
+                            echo " <h4>" . $row["roomcount"] . "</h4> ";
+
+                            $conn->close();
+                        ?>
+
+                </div>
+                <img src="../localimages/vacantrooms.png" alt="vacantrooms.png">
+            </div>
+            <div class="totaltenants">
+                <div class="text">
+                    <p>Total Tenants</p>
+                    <p name="tenantsstats" id="tenantsstats"> 
+                        <?php
+                            include 'db_connect.php';
+                            $sql = "SELECT COUNT(tenantID) as tenantcount FROM tenants;";
+    
+                            $result = $conn->query($sql);
+                            
+                            $row = $result->fetch_assoc();
+                            
+                            echo " <h4>" . $row["tenantcount"] . "</h4> ";
+
+                            $conn->close();
+                        ?>
+                    </p>
+                </div>
+                <img src="../localimages/totaltenants.png" alt="totaltenants.png">
+            </div>
+            <div class="servicerates" onclick="">
+                <p>Service Rates</p>
+                <div class="text">
+                    <p>Electricity</p>
+                    <p name="electricity" id="electricity"> 
+                        <?php
+                            include 'db_connect.php';
+                            $sql = "SELECT MAX(electricitybaseprice) as elecprice FROM services;";
+    
+                            $result = $conn->query($sql);
+                            
+                            $row = $result->fetch_assoc();
+                            
+                            echo " <h4>" . $row["elecprice"] . "/kWh</h4> ";
+
+                            $conn->close();
+                        ?>
+                    </p>
+                    <p>Water</p>
+                    <p name="water" id="water"> 
+                        <?php
+                            include 'db_connect.php';
+                            $sql = "SELECT MAX(waterbaseprice) as waterprice FROM services;";
+    
+                            $result = $conn->query($sql);
+                            
+                            $row = $result->fetch_assoc();
+                            
+                            echo " <h4>" . $row["waterprice"] . "/m3</h4> ";
+
+                            $conn->close();
+                        ?>
+                    </p>
+                </div>
+            </div>
+            <div class="transactions">
+                <h3>Records</h3>
+                <button id="createbutton" onclick="opencreate(this)">Create a new record</button>
+                <div class="search">
+                    <input type="text" placeholder="Search by Name, Date" id="searchinput" oninput="search()">
+                </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Reference Number</th>
+                                    <th>Room No.</th>
+                                    <th>Tenant ID</th>
+                                    <th>Tenant First Name</th>
+                                    <th>Tenant Last Name</th>
+                                    <th>Date</th>
+                                    <th>Electricity Consumption(kWh)</th>
+                                    <th>Electricity Bill</th>
+                                    <th>Water Consumption(m3)</th>
+                                    <th>Water Bill</th>
+                                    <th>Room Rental Fee</th>
+                                    <th>Total Amount</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                include 'db_connect.php';
+
+                                $sql = "SELECT
+                                payments.reference_number,
+                                tenants.room_number,
+                                tenants.tenantID,
+                                payments.date_of_payment,
+                                payments.amount,
+                                payments.status,
+                                tenants.fName,
+                                tenants.lName,
+                                rooms.room_number,
+                                rooms.availability,
+                                rooms.roomRentalFee,
+                                services.id AS serviceID,
+                                services.electricitybaseprice,
+                                services.electricity,
+                                services.waterbaseprice,
+                                services.water
+                            FROM
+                                payments
+                            JOIN
+                                tenants ON payments.tenantID = tenants.tenantID
+                            JOIN
+                                rooms ON tenants.room_number = rooms.room_number
+                            JOIN
+                                services ON rooms.servicesID = services.id;";
+                                $result = $conn->query($sql);
+
+                                if ($result->num_rows > 0) {
+                                    while($row = $result->fetch_assoc()) {
+                                        echo "<tr data-id='{$row['reference_number']}'>
+                                            <td class='ref-num'>{$row['reference_number']}</td>
+                                            <td class='room-num'>{$row['room_number']}</td>
+                                            <td class='tenant-id'>{$row['tenantID']}</td>
+                                            <td class='tenant-fname'>{$row['fName']}</td>
+                                            <td class='tenant-lname'>{$row['lName']}</td>
+                                            <td class='date'>{$row['date_of_payment']}</td>
+                                            <td class='electricityconsumption'>" . number_format($row['electricity'],2) . " kWh</td>
+                                            <td class='electricitybill'>₱" . number_format($row['electricitybaseprice'] * $row['electricity'],2) . "</td>
+                                            <td class='waterconsumption'>" . number_format($row['water'],2) . " m3</td>
+                                            <td class='waterbill'>₱" . number_format($row['waterbaseprice'] * $row['water'],2) . "</td>
+                                            <td class='roomrentalfee'>₱" . number_format($row['roomRentalFee'],2) . "</td>
+                                            <td class='totalamount'>₱" . number_format(($row['electricitybaseprice'] * $row['electricity']) + ($row['waterbaseprice'] * $row['water']) + $row['roomRentalFee'],2) . "</td>
+                                            <td class='status'>{$row['status']}</td>
+                                            <td>
+                                                <button id='edit' class='edit-btn' onclick='openModal(this)' data-id='{$row['reference_number']}' data-room='{$row['room_number']}' data-tenant='{$row['tenantID']}' data-tenantfname='{$row['fName']}' data-tenantlname='{$row['lName']}' data-date='{$row['date_of_payment']}' data-amount='{$row['amount']}' data-status='{$row['status']}'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-pencil' viewBox='0 0 16 16'>
+                                                <path d='M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325'/>
+                                                </svg></button>
+
+                                                <form method='POST' action='delete.php' style='display:inline;'>
+                                                    <input type='hidden' name='reference_number' value='{$row['reference_number']}'>
+                                                    <button type='submit' id='delete'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-trash' viewBox='0 0 16 16'>
+                                                    <path d='M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z'/>
+                                                    <path d='M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z'/>
+                                                    </svg></button>
+                                                    </form>
+                                            </td>
+                                        </tr>";
+                                        
+                                    }
+                                } else {
+                                    echo "<tr><td colspan='8'>No transactions found</td></tr>";
+                                }
+                                $conn->close();
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+            </div>
+            <div id="createrecord" class="create-record">
+                    <div class="recordcontent">
+                    <span class="close" onclick="closecreate()">&times;</span>
+                        <h3>Create New Record</h3>
+                        <form method="POST" action="create.php">
+                            <label for="createTenantId">Tenant:</label>
+                            <select name="tenant_id" id="createTenantId" required>
+                                <option value="all">All Tenants</option>
+                                <?php
+                                include 'db_connect.php';
+                                $sql = "SELECT tenantID, fName, lName FROM tenants";
+                                $result = $conn->query($sql);
+                                if ($result->num_rows > 0) {
+                                    while ($row = $result->fetch_assoc()) {
+                                        echo "<option value='{$row['tenantID']}'>{$row['tenantID']} - {$row['fName']} {$row['lName']}</option>";
+                                    }
+                                }
+                                $conn->close();
+                                ?>
+                            </select><br>
+                            <label for="createDateOfPayment">Date of Payment:</label>
+                            <input type="date" name="date_of_payment" id="createDateOfPayment" required><br>
+                            <label for="createAmount">Amount:</label>
+                            <input type="text" name="amount" id="createAmount" required><br>
+                            <label for="createStatus">Status:</label>
+                            <input type="text" name="status" id="createStatus" required><br>
+                            <button type="submit" class="save-btn">Save</button>
+                        </form>
+                    </div>
+                </div>
+        </div>
+    </div>
+    
+
+<!-- The Modal overlay -->
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h3>Edit Transactions</h3>
+        <form method="POST" action="update.php">
+            <input type="hidden" name="reference_number" id="modalReferenceNumber">
+            <input type="hidden" name="tenant_id" id="modalTenantId">
+            <p>Reference Number: <span id="textReferenceNumber"></span></p>
+            <p>Room Number: <span id="textRoomNumber"></span></p>
+            <p>Tenant ID: <span id="textTenantIdDisplay"></span></p>
+            <input type="text" name="tenant_lname" id="modalTenantLName" required><br>
+            <label for="modalDateOfPayment">Date:</label>
+            <input type="date" name="date_of_payment" id="modalDateOfPayment" required><br>
+            <label for="modalwater">Amount:</label>
+            <input type="text" name="amount" id="modalAmount" required><br>
+            <label for="modalelectricity">Water Consumption:</label>
+            <input type="text" name="amount" id="modalAmount" required><br>
+            <label for="modalStatus">Electricity Consumption:</label>
+            <input type="text" name="status" id="modalStatus" required><br>
+            <button type="submit" class="save-btn">Save</button>
+        </form>
+    </div>
+</div>
+
+
+</body>
+</html>
